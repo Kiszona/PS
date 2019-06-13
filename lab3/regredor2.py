@@ -29,10 +29,10 @@ print("dlugosc Y: ", Y.shape, " || dlugosc X : ", X.shape)
 # data[:,0] = data[:,0]/max(data[:,0])
 n = len(data)
 
-# iloscN = range(10,290,10)
+iloscN = range(10,290,10)
 algorytmy = ('adam','sgd','lbfgs')
 eta = [0.01, 0.001, 0.0001]
-iloscN = range(10,30,10)
+# iloscN = range(10,30,10)
 # algorytmy = ('adam', 'sgd')
 # eta = [0.01]
 i0 = 0
@@ -74,7 +74,7 @@ for alg in algorytmy:
                 naje = e
                 najN = N
             wyniki[i2, (i1 + i0*3)] = srbladkw
-            with open('gielda_wyniki.csv', mode='w') as plik:
+            with open('gielda_wyniki2.csv', mode='w') as plik:
                 writer = csv.writer(plik)
                 writer.writerows(wyniki)
             time.sleep(1)
@@ -83,6 +83,6 @@ for alg in algorytmy:
         i1 +=1
     i1 = 0
     i0 += 1
-np.savetxt("wyniki_gielda_savetxt.csv", wyniki.tolist(), fmt='%5.3f', delimiter=",")
+np.savetxt("wyniki_gielda_savetxt2.csv", wyniki.tolist(), fmt='%5.3f', delimiter=",")
 print("czas trwania algorytmu: {}".format(time.time() - start_Alg))
 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@: naj_eta: {}, naj_alg: {}, naj_licz_NL {}". format(naje, najalg, najN))

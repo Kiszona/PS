@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import scale
 start_Alg = time.time()
 data = pd.read_csv("D:\\pwr\\sem6ark\\"
@@ -28,6 +29,7 @@ print("dlugosc Y: ", Y.shape, " || dlugosc X : ", X.shape)
 # X = data[:,0:3]
 # data[:,0] = data[:,0]/max(data[:,0])
 n = len(data)
+# X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=.)
 
 iloscN = range(10,290,10)
 algorytmy = ('adam','sgd','lbfgs')
@@ -45,44 +47,12 @@ with open('gielda_wyniki.csv', mode = 'w' ) as plik:
     writer.writerows(wyniki)
 wartosci_rand = list()
 MIN = 2**30
+regcv = MLPRegressor(learning_rate='constant',activation='relu')
+iloscN = range(10,290,10)
+algorytmy = ('adam','sgd','lbfgs')
+eta = [0.01, 0.001, 0.0001]
+parameters = {'hidden_layer_sizes': iloscN, 'solver' : algorytmy,'learning_rate': eta}
 
-for alg in algorytmy:
-    for e in eta:
-        for N in iloscN:
-            srbladkw = 0
-            for i in range(usrednienie):
+clf = GridSearchCV(regcv, parameters, n_jobs=10)
 
-                start_okr = time.time()
-                rand = int(random.random()*1000)
-                wartosci_rand.append(rand)
-                X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size= 0.3, random_state=rand)
-                regresor = MLPRegressor(hidden_layer_sizes=(N,),
-                                        solver=alg,
-                                        learning_rate='constant',
-                                        learning_rate_init=e,
-                                        activation='relu')
-                regresor.fit(X_train, y_train)
-                # y_pred = regresor.predict(X_test)
-                srbladkw += sum((np.array(y_test) - regresor.predict(X_test))**2)
-                print("czas okrazenia petli: {}".format(int(time.time() - start_okr)))
-
-            srbladkw = srbladkw/usrednienie
-            print(srbladkw)
-            if srbladkw < MIN:
-                MIN = srbladkw
-                najalg = alg
-                naje = e
-                najN = N
-            wyniki[i2, (i1 + i0*3)] = srbladkw
-            with open('gielda_wyniki2.csv', mode='w') as plik:
-                writer = csv.writer(plik)
-                writer.writerows(wyniki)
-            time.sleep(1)
-            i2 +=1
-        i2 = 0
-        i1 +=1
-    i1 = 0
-    i0 += 1
-np.savetxt("wyniki_gielda_savetxt2.csv", wyniki.tolist(), fmt='%5.3f', delimiter=",")
-print("czas trwania algorytmu: {}".format(time.time() - start_Alg))
-print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@: naj_eta: {}, naj_alg: {}, naj_licz_NL {}". format(naje, najalg, najN))
+wyniki = clf.fit(X,Y)
