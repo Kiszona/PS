@@ -32,7 +32,7 @@ for i in range(len(data)-ndni):
     X.append(tmp)
 X = np.array(X)
 X_train, X_test, y_train, y_test =\
-    train_test_split(X, Y, test_size=0.3, random_state=1)
+    train_test_split(X, Y, test_size=0.1, random_state=1)
 y_test = np.array(y_test)
 y_train = np.array(y_train)
 mu, sig = 0, 2
@@ -52,10 +52,10 @@ print(X_test.shape)
 print(y_train.shape)
 print(y_test.shape)
 par = np.arange(1., 1.01, 0.01)
-K_cent = range(10, 20, 5)
-wyniki = np.zeros(len(K_cent) * len(par)).reshape(len(K_cent),len(par))
+K_cent = range(14, 30, 2)
+wyniki = np.zeros(len(K_cent) * len(par)).reshape(len(K_cent), len(par))
 
-with open('rbf_wyniki.csv', mode = 'w' ) as plik:
+with open('rbf_wyniki.csv', mode='w') as plik:
     writer = csv.writer(plik)
     writer.writerows(wyniki)
 i0 = 0
@@ -95,9 +95,9 @@ for param in par:
         t_train = time.time()
         print("czas trenowania: {}".format(int(t_train - t_promien)))
 
-        W=np.dot(np.dot(np.linalg.inv(np.dot(G.T, G)), G.T), y_train)
+        W = np.dot(np.dot(np.linalg.inv(np.dot(G.T, G)), G.T), y_train)
 
-        G_test = np.empty((X_test.shape[0],cent), dtype=float)
+        G_test = np.empty((X_test.shape[0], cent), dtype=float)
         # testowanie sieci
         for i in range(X_test.shape[0]):
             for j in range(cent):
@@ -108,15 +108,19 @@ for param in par:
         print("czas testowania: {}".format(int(t_test - t_train)))
         print("czas okrazenia petli: {}".format(int(time.time() - start_okr)))
 
-        pred = np.dot(G_test,W)
+        pred = np.dot(G_test, W)
         wyniki[i1, i0 * 10] = r2_score(pred, y_test)
-        wyniki[i1, i0 * 10]
         # wyniki[i1, i0 * 10]
-
+        # wyniki[i1, i0 * 10]
+        print("typ y_test", type(y_test), "typ y_pred:", type(y_test))
         print("pred 1: ", pred[0], pred.shape,
               "y_test 1: ", y_test[0], y_test.shape,
               "wyn r^2 : ", wyniki[i1, i0 * 10],
-              "wyn acc_score :", accuracy_score(y_test, pred))
-        i1 +=1
+              "wyn acc_score :", accuracy_score(y_test.tolist(), pred.tolist()))
+        with open('gielda_wyniki2.csv', mode='w') as plik:
+            writer = csv.writer(plik)
+            writer.writerows(wyniki)
+        i1 += 1
     i1 = 0
-    i0 +=1
+    i0 += 1
+plik.close()
