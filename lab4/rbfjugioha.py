@@ -2,7 +2,7 @@ import time
 import random
 import csv
 import math
-from sklearn.metrics import accuracy_score
+# from sklearn.metrics import accuracy_score
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -32,7 +32,7 @@ for i in range(len(data)-ndni):
     X.append(tmp)
 X = np.array(X)
 X_train, X_test, y_train, y_test =\
-    train_test_split(X, Y, test_size=0.1, random_state=1)
+    train_test_split(X, Y, test_size=0.1, random_state=int(1000*random.random()))
 y_test = np.array(y_test)
 y_train = np.array(y_train)
 mu, sig = 0, 2
@@ -51,7 +51,7 @@ print(X_train.shape)
 print(X_test.shape)
 print(y_train.shape)
 print(y_test.shape)
-par = np.arange(1., 1.01, 0.01)
+par = np.arange(1., 1.09, 0.01)
 K_cent = range(14, 30, 2)
 wyniki = np.zeros(len(K_cent) * len(par)).reshape(len(K_cent), len(par))
 
@@ -64,6 +64,21 @@ print("ww")
 for param in par:
     for cent in K_cent:
         start_okr = time.time()
+        X_train, X_test, y_train, y_test = \
+            train_test_split(X, Y, test_size=0.1, random_state=int(1000*random.random()))
+        y_test = np.array(y_test)
+        y_train = np.array(y_train)
+        mu, sig = 0, 2
+        szum = sig * np.random.randn(ndni * 4, ) + mu
+        # X_test[0] = X_test[0] + szum  #dodawany szum do zaklocenia wejscia
+
+        # standaryzacja danych
+        scaler = StandardScaler()
+        scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
+        X_train = np.array(X_train)
+        X_test = np.array(X_test)
         km = KMeans(n_clusters=cent, max_iter=80)
         km.fit(X_train)
         print("ww2")
@@ -115,12 +130,13 @@ for param in par:
         print("typ y_test", type(y_test), "typ y_pred:", type(y_test))
         print("pred 1: ", pred[0], pred.shape,
               "y_test 1: ", y_test[0], y_test.shape,
-              "wyn r^2 : ", wyniki[i1, i0 * 10],
-              "wyn acc_score :", accuracy_score(y_test.tolist(), pred.tolist()))
-        with open('gielda_wyniki2.csv', mode='w') as plik:
+              "wyn r^2 : ", wyniki[i1, i0 * 10])
+        with open('rbf_wyniki.csv', mode='w') as plik:
             writer = csv.writer(plik)
             writer.writerows(wyniki)
         i1 += 1
     i1 = 0
     i0 += 1
+    np.savetxt("rbf_wyniki2.csv", wyniki.tolist(), fmt='%1.3f', delimiter=",")
+
 plik.close()
